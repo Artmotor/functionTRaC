@@ -1,8 +1,8 @@
 (: Функция вывода полного количества лет сотрудника :)
 
-module namespace report = "http://www.iro37.ru/trac/api/report";
+module namespace report = "http://www.iro37.ru/trac/function/report";
 
-declare %public function report:зачисление ( $domain, $data ) {
+declare %public function report:Возраст ( $data ) {
      <table class="table table-striped">
         <tr>
           <th>№ пп</th>
@@ -16,16 +16,6 @@ declare %public function report:зачисление ( $domain, $data ) {
         {
           for $r in $data/table/row
           let $inn := $r/cell[@id="inn"]/text() 
-          
-          let $school := 
-            try {
-              fetch:xml (
-                web:create-url ( "http://localhost:8984/trac/api/Data/public/" || $domain || "/"|| "eduOrg",
-                  map { "q" :  "id:" || $inn }  )
-              )/table/row[1]
-            }
-            catch * {
-            }
           order by $r/cell[@id="familyName"]
           count $n
           return
@@ -37,7 +27,6 @@ declare %public function report:зачисление ( $domain, $data ) {
               <td>
                 {
 (: Выводит дату рождения :)
-                  $school/cell[@id=( "city__type__full" )] || " " ||
                   $r/cell[@id="year"] 
                 }
               </td>
@@ -46,28 +35,32 @@ declare %public function report:зачисление ( $domain, $data ) {
 (: Подсчет количества полных лет :)
                   let $t := (xs:date(current-date()) - xs:date($r/cell[@id = "year"])) div xs:dayTimeDuration('P1D') idiv 365.242199 * xs:yearMonthDuration('P1Y')
                   return  fn:years-from-duration(xs:yearMonthDuration($t))
-                };
+                }
               </td>
               <td>
               {
 (: Подсчет стажа работы в Лицее Перспектива :)
                  let $t := (xs:date(current-date()) - xs:date($r/cell[@id = "yearWorkOO"])) div xs:dayTimeDuration('P1D') idiv 365.242199 * xs:yearMonthDuration('P1Y')
-                  return  fn:years-from-duration(xs:yearMonthDuration($t))
-              };
+                 let $y := fn:years-from-duration(xs:yearMonthDuration($t))
+                  return
+                    if ( $y < 1 )
+                    then ( "Стаж в Лицее меньше одного года" )
+                    else ( $y )
+              }
               </td>
               <td>
                 {
 (: Подсчет общего педагогического стажа :)
                   let $t := (xs:date(current-date()) - xs:date($r/cell[@id = "yearWorkPedagogy"])) div xs:dayTimeDuration('P1D') idiv 365.242199 * xs:yearMonthDuration('P1Y')
                   return  fn:years-from-duration(xs:yearMonthDuration($t))
-                };
+                }
               </td>
               <td>
                 {
 (: Подсчет общего трудового стажа :)
                   let $t := (xs:date(current-date()) - xs:date($r/cell[@id = "yearWorkTotal"])) div xs:dayTimeDuration('P1D') idiv 365.242199 * xs:yearMonthDuration('P1Y')
                   return  fn:years-from-duration(xs:yearMonthDuration($t))
-                };
+                }
               </td>
             </tr>
         }
