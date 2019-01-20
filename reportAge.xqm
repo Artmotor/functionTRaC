@@ -26,13 +26,7 @@ declare %public function report:Возраст ( $data ) {
               <td>
                 {
 (: Выводит дату рождения :)
-                 let $date := 
-                  try { xs:date ( $r/cell[ @id = "year" ] ) } 
-                  catch * { false() }
-                  return 
-                    if ( $date )
-                    then (  $date )
-                    else ( "н/д" ) 
+                 $r/cell[ @id = "year" ]
                 }
               </td>
               <td>
