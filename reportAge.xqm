@@ -15,7 +15,6 @@ declare %public function report:Возраст ( $data ) {
         </tr>
         {
           for $r in $data/table/row
-          let $inn := $r/cell[@id="inn"]/text() 
           order by $r/cell[@id="familyName"]
           count $n
           return
@@ -27,42 +26,57 @@ declare %public function report:Возраст ( $data ) {
               <td>
                 {
 (: Выводит дату рождения :)
-                  $r/cell[@id="year"] 
+                 $r/cell[ @id = "year" ]
                 }
               </td>
               <td>
                 {
 (: Подсчет количества полных лет :)
-                  let $t := (xs:date(current-date()) - xs:date($r/cell[@id = "year"])) div xs:dayTimeDuration('P1D') idiv 365.242199 * xs:yearMonthDuration('P1Y')
-                  return  fn:years-from-duration(xs:yearMonthDuration($t))
+                  let $date :=  $r/cell[ @id = "year" ] 
+                  return 
+                    report:countDuration( $date ) 
                 }
               </td>
               <td>
               {
 (: Подсчет стажа работы в Лицее Перспектива :)
-                 let $t := (xs:date(current-date()) - xs:date($r/cell[@id = "yearWorkOO"])) div xs:dayTimeDuration('P1D') idiv 365.242199 * xs:yearMonthDuration('P1Y')
-                 let $y := fn:years-from-duration(xs:yearMonthDuration($t))
-                  return
-                    if ( $y < 1 )
-                    then ( "Стаж в Лицее меньше одного года" )
-                    else ( $y )
+                  let $date :=  $r/cell[ @id = "yearWorkOO" ] 
+                  return 
+                    report:countDuration( $date )
               }
               </td>
               <td>
                 {
 (: Подсчет общего педагогического стажа :)
-                  let $t := (xs:date(current-date()) - xs:date($r/cell[@id = "yearWorkPedagogy"])) div xs:dayTimeDuration('P1D') idiv 365.242199 * xs:yearMonthDuration('P1Y')
-                  return  fn:years-from-duration(xs:yearMonthDuration($t))
+                  let $date :=  $r/cell[ @id = "yearWorkPedagogy" ] 
+                  return 
+                    report:countDuration( $date )
                 }
               </td>
               <td>
                 {
 (: Подсчет общего трудового стажа :)
-                  let $t := (xs:date(current-date()) - xs:date($r/cell[@id = "yearWorkTotal"])) div xs:dayTimeDuration('P1D') idiv 365.242199 * xs:yearMonthDuration('P1Y')
-                  return  fn:years-from-duration(xs:yearMonthDuration($t))
+                   let $date :=  $r/cell[ @id = "yearWorkTotal" ] 
+                  return 
+                    report:countDuration( $date )
                 }
               </td>
             </tr>
         }
       </table>
+};
+(: -------------  функция расчет периода в годах от текущей даты ----------------- :)
+declare 
+  %private
+function report:countDuration ( $date as xs:string ) {
+  try { 
+    let $t :=( xs:date(current-date() ) -  xs:date( $date ) ) div xs:dayTimeDuration('P1D') idiv 365.242199 * xs:yearMonthDuration('P1Y') 
+    let $duration := fn:years-from-duration( xs:yearMonthDuration( $t ) )
+    return  
+      if ( $duration = 0 )
+      then ( "меньше 1 года" )
+      else ( $duration )
+   }
+   catch* { "н/д" }
+
 };
