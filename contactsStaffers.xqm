@@ -1,8 +1,8 @@
 (: Функция вывода контактов сотрудников :)
 
-module namespace report = "http://www.iro37.ru/trac/api/report";
+module namespace report = "http://www.iro37.ru/trac/api/report/contactsStaffers";
 
-declare %public function report:контакты ( $domain, $data ) {
+declare %public function report:контакты ( $data ) {
      <table class="table table-striped">
         <tr>
           <th>№ пп</th>
