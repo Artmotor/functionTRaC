@@ -1,6 +1,6 @@
 (: Функция вывода полного количества лет сотрудника :)
 
-module namespace report = "http://www.iro37.ru/trac/function/report";
+module namespace report = "http://www.iro37.ru/trac/api/report/reportAge";
 
 declare %public function report:Возраст ( $data ) {
      <table class="table table-striped">
